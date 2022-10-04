@@ -1,11 +1,15 @@
-import 'package:expenses/models/transaction.dart';
+import 'package:expenses/components/transaction_form.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'dart:math';
+import 'package:expenses/models/transaction.dart';
+
+import 'components/transaction_list.dart';
+
 void main() {
   runApp(const ExpensesApp());
 }
+
 class ExpensesApp extends StatelessWidget {
-  
   const ExpensesApp({super.key});
 
   @override
@@ -16,9 +20,14 @@ class ExpensesApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   MyHomePage({super.key});
 
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
   final _transactions = [
     Transaction(
       id: 't1',
@@ -34,13 +43,44 @@ class MyHomePage extends StatelessWidget {
     ),
   ];
 
+  _openTransactionFormModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return TransactionForm(_addTransaction);
+      },
+    );
+  }
+
+  _addTransaction(String title, double value) {
+    final newTrasaction = Transaction(
+      id: Random().nextDouble().toString(),
+      title: title,
+      value: value,
+      date: DateTime.now(),
+    );
+
+    setState(() {
+      _transactions.add(newTrasaction);
+    });
+
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Despesas Pessoais'),
-        ),
-        body: Column(
+      appBar: AppBar(
+        title: const Text('Despesas Pessoais'),
+        actions: [
+          IconButton(
+            onPressed: () => _openTransactionFormModal(context),
+            icon: Icon(Icons.add),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
@@ -50,48 +90,15 @@ class MyHomePage extends StatelessWidget {
                 child: Text('Gráfico'),
               ),
             ),
-            Column(
-              children: _transactions.map((tr) {
-                return Card(
-                    child: Row(
-                  children: [
-                    Container(
-                      margin:
-                          const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                      decoration: BoxDecoration(
-                          border: Border.all(
-                        color: Colors.purple,
-                        width: 2,
-                      )),
-                      padding: const EdgeInsets.all(10),
-                      child: Text(
-                        'R\$ ${tr.value.toStringAsFixed(2)}', 
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.purple
-                        ),
-                      ),
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(tr.title, style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),),
-                        Text(
-                          DateFormat('d MMM y').format(tr.date), 
-                          style: const TextStyle(
-                          color: Colors.grey
-                        ),),
-                      ],
-                    )
-                  ],
-                ));
-              }).toList(),
-            )
+            TransactionList(_transactions),
           ],
-        ));
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () => _openTransactionFormModal(context),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
   }
 }
