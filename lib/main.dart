@@ -1,3 +1,4 @@
+import 'package:expenses/components/chart.dart';
 import 'package:expenses/components/transaction_form.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
@@ -17,7 +18,7 @@ class ExpensesApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: MyHomePage(),
+      home: const MyHomePage(),
       theme: tema.copyWith(
         primaryColor: Colors.purple,
         colorScheme: tema.colorScheme.copyWith(
@@ -30,6 +31,10 @@ class ExpensesApp extends StatelessWidget {
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.black,
+          ),
+          button: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
         ),
         appBarTheme: const AppBarTheme(
@@ -45,7 +50,7 @@ class ExpensesApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({super.key});
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -53,18 +58,36 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> _transactions = [
-    // Transaction(
-    //   id: 't1',
-    //   title: 'Novo Tênis de Corrida',
-    //   value: 310.76,
-    //   date: DateTime.now(),
-    // ),
-    // Transaction(
-    //   id: 't2',
-    //   title: 'Conta de Luz',
-    //   value: 211.30,
-    //   date: DateTime.now(),
-    // ),
+    Transaction(
+      id: 't0',
+      title: 'Conta Antiga',
+      value: 400.00,
+      date: DateTime.now().subtract(const Duration(days: 33)),
+    ),
+    Transaction(
+      id: 't1',
+      title: 'Novo Tênis de Corrida',
+      value: 310.76,
+      date: DateTime.now().subtract(const Duration(days: 3)),
+    ),
+    Transaction(
+      id: 't2',
+      title: 'Cartão de Credito',
+      value: 100211.30,
+      date: DateTime.now().subtract(const Duration(days: 4)),
+    ),
+    Transaction(
+      id: 't3',
+      title: 'Lanche',
+      value: 11.30,
+      date: DateTime.now(),
+    ),
+    Transaction(
+      id: 't4',
+      title: 'Conta de Luz',
+      value: 211.30,
+      date: DateTime.now(),
+    ),
   ];
 
   _openTransactionFormModal(BuildContext context) {
@@ -74,6 +97,16 @@ class _MyHomePageState extends State<MyHomePage> {
         return TransactionForm(_addTransaction);
       },
     );
+  }
+
+  List<Transaction> get _recentTransactions {
+    return _transactions.where((tr) {
+      return tr.date.isAfter(
+        DateTime.now().subtract(
+          const Duration(days: 7),
+        ),
+      );
+    }).toList();
   }
 
   _addTransaction(String title, double value) {
@@ -99,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: [
           IconButton(
             onPressed: () => _openTransactionFormModal(context),
-            icon: Icon(Icons.add),
+            icon: const Icon(Icons.add),
           ),
         ],
       ),
@@ -107,19 +140,13 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              child: const Card(
-                elevation: 5,
-                color: Colors.blue,
-                child: Text('Gráfico'),
-              ),
-            ),
+            Chart(_recentTransactions),
             TransactionList(_transactions),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
         onPressed: () => _openTransactionFormModal(context),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
