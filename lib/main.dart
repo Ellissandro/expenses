@@ -3,6 +3,7 @@ import 'package:expenses/components/transaction_form.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:expenses/models/transaction.dart';
+import 'package:flutter/services.dart';
 
 import 'components/transaction_list.dart';
 
@@ -17,6 +18,10 @@ class ExpensesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.landscapeLeft],
+    );
+
     return MaterialApp(
       home: const MyHomePage(),
       theme: tema.copyWith(
@@ -24,6 +29,14 @@ class ExpensesApp extends StatelessWidget {
         colorScheme: tema.colorScheme.copyWith(
           secondary: Colors.amber,
           primary: Colors.purple,
+        ),
+        switchTheme: SwitchThemeData(
+          thumbColor: MaterialStateProperty.resolveWith(
+            (states) => states.isEmpty ? Colors.white : Colors.amber,
+          ),
+          trackColor: MaterialStateProperty.resolveWith(
+            (states) => states.isEmpty ? Colors.grey : Colors.amber,
+          ),
         ),
         textTheme: tema.textTheme.copyWith(
           headline1: const TextStyle(
@@ -58,6 +71,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> _transactions = [];
+  bool _showChart = false;
 
   _openTransactionFormModal(BuildContext context) {
     showModalBottomSheet(
@@ -101,11 +115,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     final appBar = AppBar(
       title: const Text(
         'Despesas Pessoais',
       ),
       actions: [
+        if (isLandscape)
+          IconButton(
+            onPressed: () => {
+              setState(() {
+                _showChart = !_showChart;
+              }),
+            },
+            icon: Icon(_showChart ? Icons.list : Icons.show_chart),
+          ),
         IconButton(
           onPressed: () => _openTransactionFormModal(context),
           icon: const Icon(Icons.add),
@@ -123,14 +149,31 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(
-              height: availableHeight * 0.25,
-              child: Chart(_recentTransactions),
-            ),
-            SizedBox(
-              height: availableHeight * 0.75,
-              child: TransactionList(_transactions, _deleteTransaction),
-            ),
+            // if (isLandscape)
+            //   Row(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     children: [
+            //       const Text('Exibir Gráfico'),
+            //       Switch(
+            //         value: _showChart,
+            //         onChanged: (value) {
+            //           setState(() {
+            //             _showChart = value;
+            //           });
+            //         },
+            //       ),
+            //     ],
+            //   ),
+            if (_showChart || !isLandscape)
+              SizedBox(
+                height: availableHeight * (isLandscape ? 0.8 : 0.30),
+                child: Chart(_recentTransactions),
+              ),
+            if (!_showChart || !isLandscape)
+              SizedBox(
+                height: availableHeight * (isLandscape ? 1 : 0.70),
+                child: TransactionList(_transactions, _deleteTransaction),
+              ),
           ],
         ),
       ),
