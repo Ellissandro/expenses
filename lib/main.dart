@@ -115,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _getIconButton(IconData icon, Function() fn) {
-    return !Platform.isIOS
+    return Platform.isIOS
         ? GestureDetector(onTap: fn, child: Icon(icon))
         : IconButton(icon: Icon(icon), onPressed: fn);
   }
@@ -125,9 +125,9 @@ class _MyHomePageState extends State<MyHomePage> {
     final mediaQuery = MediaQuery.of(context);
     bool isLandscape = mediaQuery.orientation == Orientation.landscape;
 
-    final iconList = !Platform.isIOS ? CupertinoIcons.refresh : Icons.list;
+    final iconList = Platform.isIOS ? CupertinoIcons.refresh : Icons.list;
     final chartIcon =
-        !Platform.isIOS ? CupertinoIcons.refresh : Icons.show_chart;
+        Platform.isIOS ? CupertinoIcons.refresh : Icons.show_chart;
 
     final actions = [
       if (isLandscape)
@@ -140,7 +140,7 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         ),
       _getIconButton(
-        !Platform.isIOS ? CupertinoIcons.add : Icons.add,
+        Platform.isIOS ? CupertinoIcons.add : Icons.add,
         () => _openTransactionFormModal(context),
       ),
     ];
@@ -190,7 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
-    return !Platform.isIOS
+    return Platform.isIOS
         ? CupertinoPageScaffold(
             navigationBar: CupertinoNavigationBar(
               middle: const Text('Despesas Pessoais'),
@@ -204,7 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
         : Scaffold(
             appBar: appBar,
             body: bodyPage,
-            floatingActionButton: !Platform.isIOS
+            floatingActionButton: Platform.isIOS
                 ? Container()
                 : FloatingActionButton(
                     child: const Icon(Icons.add),
